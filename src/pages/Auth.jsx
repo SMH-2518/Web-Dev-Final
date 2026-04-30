@@ -5,24 +5,23 @@ import styles from './Auth.module.css'
 
 export default function Auth() {
   const { login } = useAuth()
-  // 'login', 'register', or 'verify'
   const [view, setView] = useState('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
 
-  // Form states
   const [userName, setUserName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
 
+  // RELATIVE URL: Changed from http://localhost:8080/api/auth/register
   const handleRegister = async (e) => {
     e.preventDefault()
     setLoading(true); setError(''); setSuccess('')
     try {
-      const res = await fetch('http://localhost:8080/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userName, email, password })
@@ -35,16 +34,17 @@ export default function Auth() {
         setError(text)
       }
     } catch (err) {
-      setError('Network error. Is the backend running?')
+      setError('Connection failed. Please try again later.')
     }
     setLoading(false)
   }
 
+  // RELATIVE URL: Changed from http://localhost:8080/api/auth/verify
   const handleVerify = async (e) => {
     e.preventDefault()
     setLoading(true); setError(''); setSuccess('')
     try {
-      const res = await fetch('http://localhost:8080/api/auth/verify', {
+      const res = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code })
@@ -57,16 +57,17 @@ export default function Auth() {
         setError(text)
       }
     } catch (err) {
-      setError('Network error. Is the backend running?')
+      setError('Verification failed. Check your network.')
     }
     setLoading(false)
   }
 
+  
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true); setError(''); setSuccess('')
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -81,7 +82,7 @@ export default function Auth() {
         setError(text || 'Invalid credentials')
       }
     } catch (err) {
-      setError('Network error. Is the backend running?')
+      setError('Login failed. Is the server online?')
     }
     setLoading(false)
   }
