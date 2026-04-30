@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "=========================================="
+echo "🛡️  Starting ProtecSure Full Stack System 🛡️"
+echo "=========================================="
+
+# Define directories
+BASE_DIR="/home/shravanth/web/web-dev"
+BACKEND_DIR="$BASE_DIR/backend"
+
+# Ensure backend wrapper is executable
+cd "$BACKEND_DIR"
+chmod +x mvnw
+
+# Start the Spring Boot Backend in the background
+echo "[1/2] Starting Spring Boot Backend (Port 8080)..."
+./mvnw spring-boot:run > backend.log 2>&1 &
+BACKEND_PID=$!
+echo "      Backend running in background (PID: $BACKEND_PID)"
+echo "      Logs are being saved to backend/backend.log"
+echo "      (Waiting 10 seconds for Spring Boot to initialize...)"
+sleep 10
+
+# Start the React Frontend
+echo "[2/2] Starting React Frontend..."
+cd "$BASE_DIR"
+npm run dev
+
+# When the user stops the frontend (Ctrl+C), make sure to kill the backend too
+trap "echo 'Shutting down full stack...'; kill $BACKEND_PID; exit" INT TERM EXIT

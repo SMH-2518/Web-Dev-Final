@@ -1,0 +1,137 @@
+.main {
+  margin-top: 100px;
+  flex: 1;
+  padding-bottom: 100px;
+}
+
+.hero {
+  text-align: center;
+  padding: 80px 0 60px;
+}
+
+.badge {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+.hero h1 { font-size: 3.5rem; margin-bottom: 20px; }
+.sub { color: var(--text-dim); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px; }
+
+/* ── BILLING ── */
+.billing {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 100px;
+}
+
+.billing button {
+  padding: 8px 24px;
+  border-radius: 100px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.billing button.active {
+  background: #fff;
+  color: #000;
+}
+
+.save {
+  color: var(--primary);
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.popBadge {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: var(--primary);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 100px;
+  text-transform: uppercase;
+}
+
+.card h2 { font-size: 1.5rem; margin-bottom: 12px; }
+.price { font-size: 3.2rem; font-weight: 800; margin-bottom: 12px; }
+.price span { font-size: 1.1rem; color: var(--text-dim); font-weight: 500; }
+.cardSub { color: var(--text-dim); font-size: 1rem; margin-bottom: 32px; min-height: 3em; }
+
+.featList {
+  list-style: none;
+  margin-bottom: 40px;
+  flex: 1;
+}
+
+.featList li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.featList i { color: var(--primary); font-size: 1rem; }
+
+.cta {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.cta:hover {
+  background: #fff;
+  color: #000;
+}
+
+.ctaPop {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  box-shadow: 0 10px 20px rgba(0, 242, 255, 0.2);
+}
+
+.ctaPop:hover {
+  background: #fff;
+  box-shadow: 0 15px 30px rgba(255, 255, 255, 0.2);
+}
