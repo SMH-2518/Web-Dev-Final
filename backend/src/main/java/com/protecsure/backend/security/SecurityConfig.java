@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableMethodSecurity
@@ -52,47 +53,63 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        // Allow the exact Render origin and local development
+        configuration.setAllowedOrigins(Arrays.asList(
+            "https://web-dev-final-4n14.onrender.com", 
+            "http://localhost:3000",
+            "http://localhost:5173"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
-        configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+        
+        // Use "*" for headers to ensure nothing is blocked during login
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "x-auth-token"));
+        configuration.setAllowCredentials(true);
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> 
-            auth
-                // 1. Permit ALL frontend static resources
-                .requestMatchers(
-                    "/", 
-                    "/index.html", 
-                    "/static/**", 
-                    "/assets/**", 
-                    "/images/**",  // <--- ADD THIS LINE
-                    "/*.js", 
-                    "/*.css", 
-                    "/*.png", 
-                    "/*.jpg", 
-                    "/*.jpeg", 
-                    "/*.svg", 
-                    "/*.ico"
-                ).permitAll()
-                
-                // 2. Permit authentication endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                
-                // 3. Protect everything else
-                .anyRequest().authenticated()
-        );
 
-    http.authenticationProvider(authenticationProvider());
-    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            // Enable CORS with our custom configuration
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // CSRF must be disabled for JWT-based Stateless APIs
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> 
+                auth
+                    // 1. Permit ALL frontend static resources and common React paths
+                    .requestMatchers(
+                        "/", 
+                        "/index.html", 
+                        "/static/**", 
+                        "/assets/**", 
+                        "/images/**",
+                        "/manifest.json",
+                        "/*.js", 
+                        "/*.css", 
+                        "/*.png", 
+                        "/*.svg", 
+                        "/*.ico"
+                    ).permitAll()
+                    
+                    // 2. Permit authentication endpoints (CRITICAL)
+                    .requestMatchers("/api/auth/**").permitAll()
+                    
+                    // 3. Special handling for React Router paths (Forwarding to index.html)
+                    // This prevents 403/404 when refreshing the page on /profile or /plans
+                    .requestMatchers("/profile", "/plans", "/download", "/auth", "/privacy").permitAll()
+                    
+                    // 4. Protect everything else
+                    .anyRequest().authenticated()
+            );
 
-    return http.build();
-}
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 }
