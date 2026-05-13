@@ -114,10 +114,9 @@ public class AuthController {
         return ResponseEntity.ok("Email verified successfully! You can now log in.");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody Map<String, String> request) {
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        String password = request.get("password");
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
@@ -125,16 +124,21 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-        if (!user.isVerified()) {
-            return ResponseEntity.status(403).body("Error: Please verify your email before logging in.");
+        if (user.isVerified()) {
+            return ResponseEntity.badRequest().body("User is already verified.");
         }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password));
+        // Delete existing OTP token if it exists
+        otpTokenRepository.deleteByUser(user);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        // Generate new OTP
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        OtpToken otpToken = new OtpToken(otp, user, 10); // 10 minutes expiry
+        otpTokenRepository.save(otpToken);
 
-        return ResponseEntity.ok(Map.of("token", jwt, "userName", user.getUserName(), "email", user.getEmail()));
+        // Send new OTP
+        emailService.sendVerificationCode(user.getEmail(), otp);
+
+        return ResponseEntity.ok("New verification code sent to your email.");
     }
 }
