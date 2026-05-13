@@ -120,7 +120,32 @@ For H2 (development), no setup needed - it's in-memory.
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:8080
 
-### Production Build
+### Production Build (Docker)
+
+The application is configured to deploy as a single Docker container containing both frontend and backend:
+
+```bash
+# Build and run locally
+cd backend
+docker build -f Dockerfile -t protecsure .
+docker run -p 8080:8080 \
+  -e EMAIL_USER=your.email@gmail.com \
+  -e EMAIL_PASS=your_app_password \
+  -e DB_URL=jdbc:mysql://your-db-host/protecsure \
+  -e DB_USER=your_db_user \
+  -e DB_PASSWORD=your_db_password \
+  -e JWT_SECRET=your_jwt_secret \
+  protecsure
+```
+
+The Dockerfile automatically:
+
+- Builds the React frontend
+- Copies frontend assets to Spring Boot static resources
+- Builds the Spring Boot backend
+- Creates a single deployable JAR
+
+### Manual Production Build
 
 1. **Build Frontend**
 
