@@ -34,8 +34,7 @@ public class EmailService {
             logger.info("Verification email sent successfully to: {}", to);
         } catch (MailException e) {
             logger.error("Failed to send verification email to {}: {}", to, e.getMessage());
-            // In production, you might want to throw an exception or handle this differently
-            // For now, we'll just log the error and continue
+            throw new RuntimeException("Email failed to send. Check SMTP credentials! " + e.getMessage());
         }
     }
 }

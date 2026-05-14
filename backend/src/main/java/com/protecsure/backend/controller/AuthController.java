@@ -25,6 +25,11 @@ import java.util.Random;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
+    }
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -52,24 +57,33 @@ public class AuthController {
         String email = request.get("email");
         String password = request.get("password");
 
-        if (userRepository.existsByEmail(email)) {
-            return ResponseEntity.badRequest().body("Error: Email is already in use!");
+        Optional<User> existingUserOpt = userRepository.findByEmail(email);
+
+        User user;
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            // If already verified, block the registration
+            if (existingUser.isVerified()) {
+                return ResponseEntity.badRequest().body("Error: Email is already in use!");
+            }
+            // If not verified, allow re-registration: update credentials and resend OTP
+            existingUser.setUserName(userName);
+            existingUser.setPassword(encoder.encode(password));
+            user = userRepository.save(existingUser);
+        } else {
+            // Brand new user
+            user = new User(userName, email, encoder.encode(password));
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseGet(() -> {
+                        Role r = new Role("ROLE_USER");
+                        return roleRepository.save(r);
+                    });
+            user.getRoles().add(userRole);
+            user = userRepository.save(user);
         }
 
-        // Create new user's account
-        User user = new User(userName, email, encoder.encode(password));
-        
-        // Add basic role
-        Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseGet(() -> {
-                    Role r = new Role("ROLE_USER");
-                    return roleRepository.save(r);
-                });
-        user.getRoles().add(userRole);
-
-        userRepository.save(user);
-
-        // Generate OTP
+        // Delete any existing OTP for this user and generate a fresh one
+        otpTokenRepository.deleteByUser(user);
         String otp = String.format("%06d", new Random().nextInt(999999));
         OtpToken otpToken = new OtpToken(otp, user, 10); // 10 minutes expiry
         otpTokenRepository.save(otpToken);
