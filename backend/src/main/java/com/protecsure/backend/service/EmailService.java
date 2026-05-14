@@ -25,7 +25,7 @@ public class EmailService {
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("security@protecsure.com");
+            message.setFrom("ab4164001@smtp-brevo.com");
             message.setTo(to);
             message.setSubject("ProtecSure: Your Security Verification Code");
             message.setText("Welcome to ProtecSure.\n\nYour security verification code is: " + code + "\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.");
