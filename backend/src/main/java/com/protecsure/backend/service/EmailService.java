@@ -32,7 +32,7 @@ public class EmailService {
             headers.set("api-key", brevoApiKey);
 
             Map<String, Object> body = new HashMap<>();
-            body.put("sender", Map.of("email", "ab4164001@smtp-brevo.com", "name", "ProtecSure"));
+            body.put("sender", Map.of("email", "syedmustafahussain2518@gmail.com", "name", "ProtecSure"));
             body.put("to", List.of(Map.of("email", to)));
             body.put("subject", "ProtecSure: Your Security Verification Code");
             body.put("textContent",
