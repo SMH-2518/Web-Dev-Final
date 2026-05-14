@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
+import jakarta.servlet.DispatcherType;
 
 @Configuration
 @EnableMethodSecurity
@@ -81,6 +82,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
                 auth
+                    .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                    .requestMatchers("/error").permitAll()
+                    
                     // 1. Permit ALL frontend static resources and common React paths
                     .requestMatchers(
                         "/", 
@@ -92,6 +96,8 @@ public class SecurityConfig {
                         "/*.js", 
                         "/*.css", 
                         "/*.png", 
+                        "/*.jpg", 
+                        "/*.jpeg", 
                         "/*.svg", 
                         "/*.ico"
                     ).permitAll()

@@ -141,4 +141,28 @@ public class AuthController {
 
         return ResponseEntity.ok("New verification code sent to your email.");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: User not found.");
+        }
+
+        User user = userOpt.get();
+        if (!user.isVerified()) {
+            return ResponseEntity.status(403).body("Error: Please verify your email before logging in.");
+        }
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        return ResponseEntity.ok(Map.of("token", jwt, "userName", user.getUserName(), "email", user.getEmail()));
+    }
 }
