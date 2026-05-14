@@ -2,8 +2,9 @@
 FROM node:18 AS frontend-build
 WORKDIR /frontend
 COPY package*.json ./
-RUN npm install
+RUN npm install --include=dev
 COPY . .
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 RUN npm run build
 
 # Stage 2: Build the backend and bundle the frontend
