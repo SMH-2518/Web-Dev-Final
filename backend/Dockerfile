@@ -14,6 +14,7 @@ COPY backend/pom.xml backend/mvnw backend/mvnw.cmd backend/.mvn ./backend/
 COPY backend/src ./backend/src
 COPY --from=frontend-build /frontend/dist ./backend/src/main/resources/static
 WORKDIR /app/backend
+RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Stage 3: Run the application
